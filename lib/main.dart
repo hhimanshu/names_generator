@@ -11,9 +11,15 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Startup Names Inspiration',
-      home: RandomWords(),
+      theme: ThemeData(
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black
+        )
+      ),
+      home: const RandomWords(),
     );
   }
 }
@@ -30,11 +36,50 @@ class _RandomWordsState extends State<RandomWords> {
   final _biggerFont = const TextStyle(fontSize: 18);
   final _saved = <WordPair>{};
 
+  void _pushSaved() {
+    Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (context) {
+            final tiles = _saved.map(
+                  (pair) {
+                return ListTile(
+                  title: Text(
+                    pair.asPascalCase,
+                    style: _biggerFont,
+                  ),
+                );
+              },
+            );
+            final divided = tiles.isNotEmpty
+                ? ListTile.divideTiles(
+              context: context,
+              tiles: tiles,
+            ).toList()
+                : <Widget>[];
+
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Saved Suggestions'),
+              ),
+              body: ListView(children: divided),
+            );
+          },
+        )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Startup Names Generator"),
+        actions: [
+          IconButton(
+              onPressed: _pushSaved,
+              icon: const Icon(Icons.list),
+              tooltip: 'Saved Suggestions',
+          )
+        ],
       ),
       body: ListView.builder(
           padding: const EdgeInsets.all(16.0),
